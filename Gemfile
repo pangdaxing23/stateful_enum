@@ -16,3 +16,4 @@ end
 
 gem 'selenium-webdriver'
 gem 'nokogiri', RUBY_VERSION < '2.1' ? '~> 1.6.0' : '>= 1.7'
+gem 'loofah', RUBY_VERSION < '2.5' ? '< 2.21.0' : '>= 0'
