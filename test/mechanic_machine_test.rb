@@ -126,7 +126,7 @@ class StatefulEnumTest < ActiveSupport::TestCase
     ActiveRecord::Migration.create_table(:array_enum_test) {|t| t.integer :col }
     tes = Class.new(ActiveRecord::Base) do
       self.table_name = 'array_enum_test'
-      enum(col: [:foo, :bar]) { event(:e) { transition(foo: :bar) } }
+      enum(:col, [:foo, :bar]) { event(:e) { transition(foo: :bar) } }
     end.new col: 'foo'
     tes.e
     assert_equal 'bar', tes.col
@@ -135,7 +135,7 @@ class StatefulEnumTest < ActiveSupport::TestCase
   def test_duplicate_from_in_one_event
     assert_raises do
       Class.new(ActiveRecord::Base) do
-        enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+        enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
           event :assign do
             transition :unassigned => :assigned
             transition :unassigned => :resolved
@@ -148,7 +148,7 @@ class StatefulEnumTest < ActiveSupport::TestCase
   def test_not_duplicate_from_in_one_event
     assert_nothing_raised do
       Class.new(ActiveRecord::Base) do
-        enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+        enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
           event :toggle_assignment do
             transition :unassigned => :assigned
             transition :assigned => :unassigned
@@ -161,14 +161,14 @@ class StatefulEnumTest < ActiveSupport::TestCase
   def test_error_raised_when_states_are_duplicated_with_another_enum_states
     assert_raises ArgumentError do
       Class.new(ActiveRecord::Base) do
-        enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+        enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
           event :toggle_assignment do
             transition :unassigned => :assigned
             transition :assigned => :unassigned
           end
         end
 
-        enum another_status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+        enum :another_status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
           event :toggle_assignment do
             transition :unassigned => :assigned
             transition :assigned => :unassigned
@@ -181,14 +181,14 @@ class StatefulEnumTest < ActiveSupport::TestCase
   def test_error_raised_when_states_are_duplicated_with_normal_enum_entry
     assert_raises ArgumentError do
       Class.new(ActiveRecord::Base) do
-        enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+        enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
           event :toggle_assignment do
             transition :unassigned => :assigned
             transition :assigned => :unassigned
           end
         end
 
-        enum another_status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3}
+        enum :another_status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3}
       end
     end
   end
@@ -201,8 +201,8 @@ class StatefulEnumTest < ActiveSupport::TestCase
       end
       tes = Class.new(ActiveRecord::Base) do
         self.table_name = 'enum_prefix_test'
-        enum(status: [:active, :archived], _prefix: true) { event(:archive) { transition(active: :archived) } }
-        enum(comments_status: [:active, :inactive], _prefix: :comments) { event(:close) { transition(active: :inactive) } }
+        enum(:status, [:active, :archived], prefix: true) { event(:archive) { transition(active: :archived) } }
+        enum(:comments_status, [:active, :inactive], prefix: :comments) { event(:close) { transition(active: :inactive) } }
       end.new status: :active, comments_status: :active
 
       assert_equal :archived, tes.status_archive_transition
@@ -225,8 +225,8 @@ class StatefulEnumTest < ActiveSupport::TestCase
       end
       tes = Class.new(ActiveRecord::Base) do
         self.table_name = 'enum_suffix_test'
-        enum(status: [:active, :archived], _suffix: true) { event(:archive) { transition(active: :archived) } }
-        enum(comments_status: [:active, :inactive], _suffix: :comments) { event(:close) { transition(active: :inactive) } }
+        enum(:status, [:active, :archived], suffix: true) { event(:archive) { transition(active: :archived) } }
+        enum(:comments_status, [:active, :inactive], suffix: :comments) { event(:close) { transition(active: :inactive) } }
       end.new status: :active, comments_status: :active
 
       assert_equal :archived, tes.archive_status_transition
@@ -246,19 +246,7 @@ class StatefulEnumTest < ActiveSupport::TestCase
       ActiveRecord::Migration.create_table(:enum_prefix_and_suffix_test) { |t| t.integer :status }
       tes = Class.new(ActiveRecord::Base) do
         self.table_name = 'enum_prefix_and_suffix_test'
-        enum(status: [:active, :archived], _prefix: :prefix, _suffix: :suffix) { event(:archive) { transition(active: :archived) } }
-      end.new status: :active
-      tes.prefix_archive_suffix
-      assert_equal 'archived', tes.status
-    end
-  end
-
-  if Rails::VERSION::MAJOR >= 7
-    def test_rails7_new_syntax
-      ActiveRecord::Migration.create_table(:rails7) { |t| t.integer :status }
-      tes = Class.new(ActiveRecord::Base) do
-        self.table_name = 'rails7'
-        enum(:status, [:active, :archived], prefix: 'prefix', suffix: 'suffix') { event(:archive) { transition(active: :archived) } }
+        enum(:status, [:active, :archived], prefix: :prefix, suffix: :suffix) { event(:archive) { transition(active: :archived) } }
       end.new status: :active
       tes.prefix_archive_suffix
       assert_equal 'archived', tes.status

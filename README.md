@@ -41,7 +41,7 @@ The stateful_enum gem extends AR::Enum definition to take a block with a similar
 Example:
 ```ruby
 class Bug < ApplicationRecord
-  enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+  enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
     event :assign do
       transition :unassigned => :assigned
     end
