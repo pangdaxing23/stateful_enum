@@ -3,6 +3,37 @@
 # Configure Rails Environment
 ENV["RAILS_ENV"] = "test"
 
+require 'rails'
+require 'active_record'
+
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'stateful_enum'
+require 'stateful_enum/railtie'
+
+if ActiveRecord::VERSION::MAJOR < 7
+  Class.new(::Rails::Railtie) do
+    module EnumSyntaxConverter
+      def enum(name = nil, values = nil, **options, &block)
+        return super options, &block if name == nil
+
+        if (prefix = options.delete :prefix)
+          options[:_prefix] = prefix
+        end
+        if (suffix = options.delete :suffix)
+          options[:_suffix] = suffix
+        end
+        super options.merge(name => values), &block
+      end
+    end
+
+    initializer :convert_old_enum_syntax, after: 'stateful_enum' do
+      ActiveSupport.on_load :active_record do
+        ::ActiveRecord::Base.extend EnumSyntaxConverter
+      end
+    end
+  end
+end
+
 require File.expand_path("../../test/dummy/config/environment.rb", __FILE__)
 
 ActiveRecord::Migration.verbose = false
@@ -26,6 +57,3 @@ if ActiveSupport::TestCase.respond_to?(:fixture_path=)
   ActionDispatch::IntegrationTest.fixture_path = ActiveSupport::TestCase.fixture_path
   ActiveSupport::TestCase.fixtures :all
 end
-
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'stateful_enum'
