@@ -10,5 +10,6 @@ gemfiles/*.lock
 /tmp/
 /log/
 /test/dummy/log/
+/test/dummy/tmp/
 
 .byebug_history
