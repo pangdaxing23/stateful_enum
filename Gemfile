@@ -11,7 +11,7 @@ elsif ENV['RAILS_VERSION']
   gem 'rails', "~> #{ENV['RAILS_VERSION']}.0"
   if ENV['RAILS_VERSION'] <= '5.0'
     gem 'sqlite3', '< 1.4'
-  elsif ENV['RAILS_VERSION'] <= '7.0'
+  elsif ENV['RAILS_VERSION'] <= '7.1'
     gem 'sqlite3', '~> 1.4'
   end
 else
