@@ -3,7 +3,7 @@
 class Bug < ActiveRecord::Base
   belongs_to :assigned_to, class_name: 'User'
 
-  enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3} do
+  block = ->(_) {
     event :assign do
       transition :unassigned => :assigned, if: -> { !!assigned_to }
     end
@@ -27,6 +27,12 @@ class Bug < ActiveRecord::Base
 
       transition all - [:closed] => :closed
     end
+  }
+
+  if Rails::VERSION::MAJOR >= 7
+    enum :status, {unassigned: 0, assigned: 1, resolved: 2, closed: 3}, &block
+  else
+    enum status: {unassigned: 0, assigned: 1, resolved: 2, closed: 3}, &block
   end
 
   class Notifier
