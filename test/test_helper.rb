@@ -16,13 +16,14 @@ if ActiveRecord::VERSION::MAJOR < 7
       def enum(name = nil, values = nil, **options, &block)
         return super options, &block if name == nil
 
+        new_options = {}
         if (prefix = options.delete :prefix)
-          options[:_prefix] = prefix
+          new_options[:_prefix] = prefix
         end
         if (suffix = options.delete :suffix)
-          options[:_suffix] = suffix
+          new_options[:_suffix] = suffix
         end
-        super options.merge(name => values), &block
+        super new_options.merge(name => (values || options)), &block
       end
     end
 
