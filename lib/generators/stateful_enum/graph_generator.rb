@@ -39,7 +39,7 @@ module StatefulEnum
           @g.get_node(final) {|n| n['shape'] = 'doublecircle' }
         end
 
-        @g.output png: File.join((ENV['DEST_DIR'] || Dir.pwd), "#{model.name}.png")
+        @g.output png: File.join((ENV['DEST_DIR'] || Dir.pwd), "#{model.name}_#{column}.png")
       end
 
       def event(name, &block)
