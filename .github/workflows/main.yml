@@ -62,6 +62,10 @@ jobs:
             rails_version: '5.2'
             bundler_version: '1'
 
+        exclude:
+          - ruby_version: '3.1'
+            rails_version: '8.0'
+
     env:
       RAILS_VERSION: ${{ matrix.rails_version }}
 
