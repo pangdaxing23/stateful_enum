@@ -26,3 +26,5 @@ if RUBY_VERSION >= '3.3'
   gem 'bigdecimal'
   gem 'mutex_m'
 end
+
+gem 'benchmark' if RUBY_VERSION >= '3.5'
