@@ -3,6 +3,9 @@
 # Configure Rails Environment
 ENV["RAILS_ENV"] = "test"
 
+# require logger before requiring rails, or Rails 6 fails to boot
+require 'logger'
+# Then load Rails
 require 'rails'
 require 'active_record'
 
