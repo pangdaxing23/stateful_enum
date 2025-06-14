@@ -85,6 +85,18 @@ module StatefulEnum
           define_method "#{value_method_name}_transition" do
             transitions[send(column).to_sym].try! :first
           end
+
+          validate on: :update do
+            state_from, state_to = changes[column]
+            next if state_from.nil? || state_to.nil?
+            state_from = state_from.to_sym; state_to = state_to.to_sym
+
+            all_possible_transitions = model.instance_variable_get(:@_defined_stateful_enums).flat_map {|enum| enum.events.map(&:transitions) }
+            filtered_transitions = all_possible_transitions.map! {|h| h[state_from] }.compact
+            unless filtered_transitions.any? {|to, _condition| to == state_to }
+              errors.add column, "cannot transition from #{state_from} to #{state_to}"
+            end
+          end
         end
       end
 

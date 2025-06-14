@@ -51,6 +51,17 @@ class StatefulEnumTest < ActiveSupport::TestCase
     assert_equal 'resolved', bug.status
   end
 
+  def test_validation_with_direct_attribute_write
+    bug = Bug.new
+    bug.status = 'resolved'
+    assert_equal true, bug.valid?
+    bug.save!
+    assert_equal 'resolved', bug.status
+
+    bug.status = 'assigned'
+    assert_equal false, bug.valid?
+  end
+
   def test_can_xxxx?
     bug = Bug.new
     assert bug.can_resolve?
@@ -250,6 +261,21 @@ class StatefulEnumTest < ActiveSupport::TestCase
       end.new status: :active
       tes.prefix_archive_suffix
       assert_equal 'archived', tes.status
+    end
+
+    def test_validation_with_direct_attribute_write_with_prefix_and_suffix
+      ActiveRecord::Migration.create_table(:attribute_write_with_prefix_and_suffix_test) { |t| t.integer :status }
+      t = Class.new(ActiveRecord::Base) do
+        self.table_name = 'attribute_write_with_prefix_and_suffix_test'
+        enum(:status, [:active, :archived], prefix: :prefix, suffix: :suffix) { event(:archive) { transition(active: :archived) } }
+      end.new status: :active
+      t.status = 'archived'
+      assert_equal true, t.valid?
+      t.save!
+      assert_equal 'archived', t.status
+
+      t.status = 'active'
+      assert_equal false, t.valid?
     end
   end
 end
