@@ -10,6 +10,14 @@ class StatefulEnumTest < ActiveSupport::TestCase
     bug.assign
     assert_equal 'assigned', bug.status
   end
+  
+  def test_transition_to_sti
+    special_bug = SpecialBug.new
+    assert_equal 'unassigned', special_bug.status
+    special_bug.assigned_to = User.create!(name: 'user 1')
+    special_bug.assign
+    assert_equal 'assigned', special_bug.status
+  end
 
   def test_transition!
     bug = Bug.new
